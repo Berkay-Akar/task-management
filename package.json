@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
+    "class-variance-authority": "^0.7.1",
     "next": "15.2.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

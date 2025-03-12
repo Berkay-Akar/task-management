@@ -1,3 +1,5 @@
+"use client";
+
 import React, {
   createContext,
   useContext,
@@ -45,7 +47,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   useEffect(() => {
-    // Load user from localStorage on initial render
     const user = getCurrentUser();
     if (user) {
       setAuthState({
@@ -56,7 +57,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = (tcKimlikNo: string) => {
-    // Validate TC Kimlik No
+    //TODO: delete this 14722951540
+
     if (!validateTCKimlikNo(tcKimlikNo)) {
       return { success: false, message: "Geçersiz TC Kimlik Numarası" };
     }
@@ -78,14 +80,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = (tcKimlikNo: string, name: string) => {
-    // Validate TC Kimlik No
     if (!validateTCKimlikNo(tcKimlikNo)) {
       return { success: false, message: "Geçersiz TC Kimlik Numarası" };
     }
 
     const users = getUsers();
 
-    // Check if user already exists
     if (users.some((u) => u.tcKimlikNo === tcKimlikNo)) {
       return {
         success: false,
@@ -93,19 +93,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
     }
 
-    // Create new user
     const newUser: User = {
       id: uuidv4(),
       tcKimlikNo,
       name,
-      isAdmin: false, // New users are not admins by default
+      isAdmin: false,
+      tasks: [],
     };
 
-    // Save user
     const updatedUsers = [...users, newUser];
     saveUsers(updatedUsers);
 
-    // Log in the new user
     setAuthState({
       user: newUser,
       isAuthenticated: true,

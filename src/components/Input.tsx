@@ -1,113 +1,124 @@
-import React, {
-  InputHTMLAttributes,
-  TextareaHTMLAttributes,
-  forwardRef,
-} from "react";
+import React, { forwardRef } from "react";
+import { cva } from "class-variance-authority";
 
-interface BaseInputProps {
+interface BaseInputProps
+  extends React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
   label?: string;
-  error?: string;
-  fullWidth?: boolean;
   helperText?: string;
+  error?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  variant?: "outlined" | "filled";
+  variant?: "default" | "filled" | "outline";
+  fullWidth?: boolean;
 }
 
-interface TextInputProps
-  extends InputHTMLAttributes<HTMLInputElement>,
-    BaseInputProps {
-  as?: "input";
+interface TextInputProps extends BaseInputProps {
+  type?: string;
+  multiline?: boolean;
 }
 
-interface TextareaProps
-  extends TextareaHTMLAttributes<HTMLTextAreaElement>,
-    BaseInputProps {
-  as: "textarea";
+interface TextareaProps extends BaseInputProps {
+  type: "textarea";
+  rows?: number;
 }
 
 type InputProps = TextInputProps | TextareaProps;
 
+const inputVariants = cva(
+  "w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:cursor-not-allowed disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "border-input",
+        filled: "bg-gray-100 dark:bg-gray-800 border-transparent",
+        outline: "bg-transparent",
+      },
+      error: {
+        true: "border-danger focus:ring-danger focus:border-danger",
+      },
+      withLeftIcon: {
+        true: "pl-10",
+      },
+      withRightIcon: {
+        true: "pr-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+);
+
 const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
   (
     {
+      className,
       label,
-      error,
-      fullWidth = false,
-      className = "",
-      as = "input",
       helperText,
+      error,
       leftIcon,
       rightIcon,
-      variant = "outlined",
+      variant = "default",
+      type = "text",
+      fullWidth,
       ...props
     },
     ref
   ) => {
-    const baseClasses =
-      "block w-full rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500";
+    const isTextarea = type === "textarea";
+    const inputClasses = inputVariants({
+      variant,
+      error: !!error,
+      withLeftIcon: !!leftIcon,
+      withRightIcon: !!rightIcon,
+      className,
+    });
 
-    const variantClasses = {
-      outlined:
-        "border border-gray-300 shadow-sm dark:border-gray-600 dark:bg-gray-800 dark:text-white",
-      filled: "border-0 bg-gray-100 dark:bg-gray-700 dark:text-white",
-    };
-
-    const errorClasses = error
-      ? "border-red-500 focus:ring-red-500 focus:border-red-500 dark:border-red-500"
-      : "";
-
-    const paddingClasses = leftIcon ? "pl-10" : rightIcon ? "pr-10" : "";
-
-    const widthClass = fullWidth ? "w-full" : "";
-
-    const inputClasses = `${baseClasses} ${variantClasses[variant]} ${errorClasses} ${paddingClasses} ${className}`;
+    const inputProps = { ...props };
 
     return (
-      <div className={`${fullWidth ? "w-full" : ""} mb-4`}>
+      <div className="w-full">
         {label && (
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {label}
           </label>
         )}
-
         <div className="relative">
           {leftIcon && (
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
               {leftIcon}
             </div>
           )}
 
-          {as === "textarea" ? (
+          {isTextarea ? (
             <textarea
+              className={inputClasses}
               ref={ref as React.Ref<HTMLTextAreaElement>}
-              className={`${inputClasses} py-2 px-3 min-h-[100px]`}
-              {...(props as TextareaHTMLAttributes<HTMLTextAreaElement>)}
+              rows={(props as TextareaProps).rows || 4}
+              {...(inputProps as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
             />
           ) : (
             <input
+              type={type}
+              className={inputClasses}
               ref={ref as React.Ref<HTMLInputElement>}
-              className={`${inputClasses} h-10 py-2 px-3`}
-              {...(props as InputHTMLAttributes<HTMLInputElement>)}
+              {...(inputProps as React.InputHTMLAttributes<HTMLInputElement>)}
             />
           )}
 
           {rightIcon && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-500">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
               {rightIcon}
             </div>
           )}
         </div>
-
-        {error && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
-        )}
 
         {helperText && !error && (
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {helperText}
           </p>
         )}
+        {error && <p className="mt-1 text-sm text-danger">{error}</p>}
       </div>
     );
   }

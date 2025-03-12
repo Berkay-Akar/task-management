@@ -3,6 +3,7 @@ export interface User {
   tcKimlikNo: string;
   name: string;
   isAdmin: boolean;
+  tasks?: Task[];
 }
 
 export interface Task {
@@ -14,6 +15,7 @@ export interface Task {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
+  userName: string;
 }
 
 export interface AuthState {

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Task } from "../types";
+import { Task, User } from "../types";
 import { useTasks } from "../context/TaskContext";
+import { useAuth } from "../context/AuthContext";
+import { getUsers } from "../utils/localStorage";
 import Input from "./Input";
 import Button from "./Button";
 import { FaFlag } from "react-icons/fa";
@@ -12,71 +14,56 @@ interface TaskFormProps {
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
-  const [errors, setErrors] = useState<{
-    title?: string;
-    description?: string;
-  }>({});
   const { addTask, updateTask } = useTasks();
+  const { user: currentUser } = useAuth();
+  const [title, setTitle] = useState(task?.title || "");
+  const [description, setDescription] = useState(task?.description || "");
+  const [priority, setPriority] = useState<"low" | "medium" | "high">(
+    task?.priority || "medium"
+  );
+  const [assignedUserId, setAssignedUserId] = useState(task?.userId || "");
+  const [users, setUsers] = useState<User[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // If task is provided, populate form fields for editing
   useEffect(() => {
-    if (task) {
-      setTitle(task.title);
-      setDescription(task.description);
-      setPriority(task.priority || "medium");
-    }
-  }, [task]);
+    const fetchedUsers = getUsers();
+    setUsers(fetchedUsers);
+  }, []);
 
-  const validate = (): boolean => {
-    const newErrors: { title?: string; description?: string } = {};
-    let isValid = true;
-
-    if (!title.trim()) {
-      newErrors.title = "Başlık gereklidir";
-      isValid = false;
-    }
-
-    if (!description.trim()) {
-      newErrors.description = "Açıklama gereklidir";
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  };
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validate()) {
+    if (!title.trim() || !description.trim()) {
+      alert("Lütfen başlık ve açıklama alanlarını doldurunuz.");
       return;
     }
 
+    const taskData = {
+      title: title.trim(),
+      description: description.trim(),
+      priority,
+      userId: currentUser?.isAdmin ? assignedUserId : currentUser?.id || "",
+      status: "incomplete" as "incomplete" | "complete",
+      createdAt: task?.createdAt || new Date(),
+      updatedAt: new Date(),
+    };
+
     if (task) {
-      // Update existing task
-      const success = updateTask(task.id, {
-        title: title.trim(),
-        description: description.trim(),
-        priority,
-      });
-
-      if (success && onSuccess) {
-        onSuccess();
-      }
+      updateTask(task.id, { ...taskData });
     } else {
-      // Add new task
-      addTask(title.trim(), description.trim(), priority);
-      setTitle("");
-      setDescription("");
-      setPriority("medium");
-
-      if (onSuccess) {
-        onSuccess();
-      }
+      // Use the same userId logic that you used for taskData
+      const userId = currentUser?.isAdmin
+        ? assignedUserId
+        : currentUser?.id || "";
+      addTask(title.trim(), description.trim(), priority, userId);
     }
+
+    onSuccess?.();
   };
 
   const priorityOptions = [
@@ -99,60 +86,98 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
   ];
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="space-y-4">
       <Input
         label="Başlık"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Görev başlığı"
-        fullWidth
-        error={errors.title}
+        required
       />
 
       <Input
         label="Açıklama"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        placeholder="Görev açıklaması"
-        fullWidth
-        error={errors.description}
-        as="textarea"
-        rows={3}
+        required
+        type="textarea"
       />
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Öncelik
         </label>
         <div className="flex space-x-2">
-          {priorityOptions.map((option) => (
-            <button
-              key={option.value}
+          {["low", "medium", "high"].map((p) => (
+            <Button
+              key={p}
               type="button"
-              className={`px-3 py-2 rounded-md flex items-center ${
-                priority === option.value
-                  ? `${option.color} ring-2 ring-offset-2 ring-indigo-500`
-                  : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+              className={`capitalize ${
+                priority === p
+                  ? "bg-primary text-white"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
               }`}
-              onClick={() =>
-                setPriority(option.value as "low" | "medium" | "high")
-              }
+              onClick={() => setPriority(p as "low" | "medium" | "high")}
             >
-              <FaFlag className="mr-1" />
-              {option.label}
-            </button>
+              {p === "low" ? "Düşük" : p === "medium" ? "Orta" : "Yüksek"}
+            </Button>
           ))}
         </div>
       </div>
 
-      <div className="flex justify-end space-x-2 mt-4">
+      {currentUser?.isAdmin && (
+        <div className="relative">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Görevi Ata
+          </label>
+          <div className="relative">
+            <Input
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setIsDropdownOpen(true);
+              }}
+              placeholder="Kullanıcı ara..."
+              onFocus={() => setIsDropdownOpen(true)}
+            />
+            {isDropdownOpen && (
+              <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto">
+                {filteredUsers.map((user) => (
+                  <div
+                    key={user.id}
+                    className={`px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                      assignedUserId === user.id
+                        ? "bg-blue-50 dark:bg-blue-900"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      setAssignedUserId(user.id);
+                      setSearchTerm(user.name);
+                      setIsDropdownOpen(false);
+                    }}
+                  >
+                    {user.name}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="flex justify-end space-x-2 pt-4">
         {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button
+            type="button"
+            className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
+            onClick={onCancel}
+          >
             İptal
           </Button>
         )}
-
-        <Button type="submit" variant="primary">
+        <Button
+          type="submit"
+          className="bg-primary text-white hover:bg-primary-dark"
+        >
           {task ? "Güncelle" : "Ekle"}
         </Button>
       </div>

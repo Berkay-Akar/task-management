@@ -1,24 +1,23 @@
-import type { Metadata } from "next";
+"use client";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Providers from "./providers";
+import { Providers } from "./providers";
+import { AuthProvider } from "@/context/AuthContext";
+import { ClientLayout } from "./client-layout";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Görev Yönetim Uygulaması",
-  description: "Basit bir görev yönetim uygulaması",
-};
-
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="tr">
-      <body className={inter.className}>
-        <Providers>{children}</Providers>
+      <body className={inter?.className}>
+        <AuthProvider>
+          <ClientLayout>{children}</ClientLayout>
+        </AuthProvider>
       </body>
     </html>
   );

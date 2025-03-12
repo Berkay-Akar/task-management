@@ -14,6 +14,10 @@
   --warning-hover: #d97706;
   --background: #ffffff;
   --foreground: #171717;
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
   --gray-200: #e5e7eb;
@@ -45,6 +49,10 @@
     --primary-light: #312e81;
     --background: #0f172a;
     --foreground: #f8fafc;
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --input-bg: #1e293b;
+    --input-border: #475569;
     --gray-50: #1e293b;
     --gray-100: #334155;
     --gray-200: #475569;
@@ -55,15 +63,18 @@
     --gray-700: #f1f5f9;
     --gray-800: #f8fafc;
     --gray-900: #ffffff;
+    color-scheme: dark;
   }
 }
 
-body {
-  background: var(--background);
+body, 
+.bg-theme {
+  background-color: var(--background);
   color: var(--foreground);
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Modern button styles */
@@ -71,6 +82,7 @@ button,
 .btn {
   transition: all 0.2s ease-in-out;
   font-weight: 500;
+  cursor: pointer;
 }
 
 /* Input focus styles */
@@ -83,20 +95,23 @@ select:focus {
 
 /* Card styles */
 .card {
-  background: white;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
-  transition: box-shadow 0.2s ease-in-out;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .card:hover {
   box-shadow: var(--shadow-md);
 }
 
-@media (prefers-color-scheme: dark) {
-  .card {
-    background: var(--gray-50);
-  }
+/* Form elements */
+input, textarea, select {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 /* Animation utilities */
@@ -105,12 +120,8 @@ select:focus {
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .animate-slide-up {
@@ -126,4 +137,56 @@ select:focus {
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+/* Priority colors - light mode */
+.priority-low {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border-left: 4px solid #3b82f6;
+}
+
+.priority-medium {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-left: 4px solid #f59e0b;
+}
+
+.priority-high {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border-left: 4px solid #ef4444;
+}
+
+/* Priority colors - dark mode */
+.dark .priority-low {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border-left: 4px solid #3b82f6;
+}
+
+.dark .priority-medium {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border-left: 4px solid #f59e0b;
+}
+
+.dark .priority-high {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border-left: 4px solid #ef4444;
+}
+
+/* Status indicators */
+.status-complete {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Dropdown and popover styles */
+.dropdown, .popover {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
 }

@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Task, TasksState } from "../types";
+import { Task, TasksState, User } from "../types";
 import { getTasks, saveTasks } from "../utils/localStorage";
 import { useAuth } from "./AuthContext";
 
@@ -14,7 +14,8 @@ interface TaskContextType extends TasksState {
   addTask: (
     title: string,
     description: string,
-    priority: "low" | "medium" | "high"
+    priority: "low" | "medium" | "high",
+    userId: string
   ) => void;
   updateTask: (
     taskId: string,
@@ -45,22 +46,39 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    // Load tasks from localStorage on initial render
     const storedTasks = getTasks();
     setTasks(storedTasks);
   }, []);
 
-  // Save tasks to localStorage whenever they change
   useEffect(() => {
     saveTasks(tasks);
   }, [tasks]);
 
+  const addTaskToUser = (userId: string, task: Task) => {
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    const user = users.find((user: User) => user.id === userId);
+
+    if (user) {
+      if (!user.tasks) user.tasks = [];
+      user.tasks.push(task);
+      localStorage.setItem("users", JSON.stringify(users));
+    } else if (currentUser) {
+      if (!currentUser.tasks) currentUser.tasks = [];
+      currentUser.tasks.push(task);
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+    }
+  };
+
   const addTask = (
     title: string,
     description: string,
-    priority: "low" | "medium" | "high" = "medium"
+    priority: "low" | "medium" | "high" = "medium",
+    userId: string
   ) => {
     if (!isAuthenticated || !user) return;
+
+    const assignedUserId = userId || user.id;
 
     const newTask: Task = {
       id: uuidv4(),
@@ -68,12 +86,16 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       description,
       status: "incomplete",
       priority,
-      userId: user.id,
+      userName: user.name,
+      userId: assignedUserId,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
+    addTaskToUser(assignedUserId, newTask);
+
     setTasks((prevTasks) => [...prevTasks, newTask]);
+    localStorage.setItem("tasks", JSON.stringify(getTasks()));
   };
 
   const updateTask = (
@@ -87,7 +109,6 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
 
     const task = tasks[taskIndex];
 
-    // Check if user has permission to update this task
     if (task.userId !== user.id && !user.isAdmin) {
       return false;
     }
@@ -102,6 +123,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     updatedTasks[taskIndex] = updatedTask;
 
     setTasks(updatedTasks);
+    localStorage.setItem("tasks", JSON.stringify(getTasks()));
     return true;
   };
 
@@ -113,12 +135,12 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
 
     const task = tasks[taskIndex];
 
-    // Check if user has permission to delete this task
     if (task.userId !== user.id && !user.isAdmin) {
       return false;
     }
 
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    localStorage.setItem("tasks", JSON.stringify(getTasks()));
     return true;
   };
 
@@ -130,7 +152,6 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
 
     const task = tasks[taskIndex];
 
-    // Check if user has permission to update this task
     if (task.userId !== user.id && !user.isAdmin) {
       return false;
     }
@@ -148,6 +169,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     updatedTasks[taskIndex] = updatedTask;
 
     setTasks(updatedTasks);
+    localStorage.setItem("tasks", JSON.stringify(getTasks()));
     return true;
   };
 
@@ -159,12 +181,10 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const getAllTasks = () => {
     if (!isAuthenticated || !user) return [];
 
-    // If user is admin, return all tasks
     if (user.isAdmin) {
       return tasks;
     }
 
-    // Otherwise, return only user's tasks
     return tasks.filter((task) => task.userId === user.id);
   };
 

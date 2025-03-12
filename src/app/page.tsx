@@ -17,5 +17,5 @@ export default function Home() {
     }
   }, [isAuthenticated, router]);
 
-  return null; // Don't render anything while redirecting
+  return null;
 }

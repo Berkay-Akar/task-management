@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "../../../context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import Input from "../../../components/Input";
 import Button from "../../../components/Button";
 import { initializeUsers } from "../../../utils/localStorage";
@@ -20,15 +20,8 @@ export default function LoginPage() {
     initializeUsers();
   }, []);
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/dashboard");
-    }
-  }, [isAuthenticated, router]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setError("");
     setIsLoading(true);
 
@@ -38,21 +31,25 @@ export default function LoginPage() {
       setIsLoading(false);
       return;
     }
-
-    // Attempt login
     const result = login(tcKimlikNo);
 
     if (result.success) {
-      router.push("/dashboard");
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 100);
+      setIsLoading(false);
     } else {
       setError(result.message);
+      setIsLoading(false);
     }
+  };
 
-    setIsLoading(false);
+  const handleRegister = () => {
+    router.push("/auth/register");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
         <h1 className="text-2xl font-bold text-center mb-6 text-blue-600">
           Görev Yönetim Uygulaması
@@ -66,34 +63,40 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleLogin}>
           <Input
             label="TC Kimlik Numarası"
             type="text"
             value={tcKimlikNo}
             onChange={(e) => setTcKimlikNo(e.target.value)}
             placeholder="11 haneli TC Kimlik Numarası"
-            fullWidth
+            className="w-full"
             required
             maxLength={11}
             pattern="[0-9]{11}"
           />
 
-          <Button type="submit" fullWidth disabled={isLoading} className="mt-2">
-            {isLoading ? "Giriş Yapılıyor..." : "Giriş Yap"}
-          </Button>
+          <div className="mt-6 flex flex-col space-y-4">
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="py-3 text-base font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+            >
+              {isLoading ? "Giriş Yapılıyor..." : "Giriş Yap"}
+            </Button>
+
+            <Button
+              type="button"
+              onClick={handleRegister}
+              className="py-3 text-base font-medium border border-blue-600 text-blue-600 hover:bg-blue-50 rounded-md"
+            >
+              Kayıt Ol
+            </Button>
+          </div>
         </form>
 
         <div className="mt-4 text-center">
-          <p className="text-gray-600">
-            Hesabınız yok mu?{" "}
-            <Link
-              href="/auth/register"
-              className="text-blue-600 hover:underline"
-            >
-              Kayıt Ol
-            </Link>
-          </p>
+          <p className="text-gray-600">TC Kimlik No: Admin (12345678910)</p>
         </div>
       </div>
     </div>

@@ -2,11 +2,22 @@
 "use client";
 
 import { ReactNode, useEffect, useState, useRef } from "react";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
 import { Providers } from "./providers";
 import Header from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
+
+// Modern background component with theme support
+const ThemedBackground = ({ children }: { children: ReactNode }) => {
+  const { theme } = useTheme();
+
+  return (
+    <div className="bg-theme-gradient bg-theme-pattern min-h-screen flex flex-col">
+      <div className="relative z-10 flex flex-col flex-grow">{children}</div>
+    </div>
+  );
+};
 
 export function ClientLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -21,46 +32,16 @@ export function ClientLayout({ children }: { children: ReactNode }) {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    authStateRef.current = isAuthenticated;
-  }, [isAuthenticated, pathname]);
-
-  useEffect(() => {
-    if (!mounted) return;
-
-    if (isRedirecting) return;
-
-    const isAuthPath =
-      pathname === "/auth/login" || pathname === "/auth/register";
-
-    if (isAuthenticated && isAuthPath) {
-      console.log("Authenticated user on auth page - redirecting to dashboard");
-      setIsRedirecting(true);
-
-      router.push("/dashboard");
-
-      setTimeout(() => {
-        setIsRedirecting(false);
-      }, 1000);
-    } else if (!isAuthenticated && pathname !== "/" && !isAuthPath) {
-      setIsRedirecting(true);
-
-      router.push("/auth/login");
-
-      setTimeout(() => {
-        setIsRedirecting(false);
-      }, 1000);
-    }
-  }, [isAuthenticated, pathname, router, mounted, isRedirecting]);
-
   return (
     <ThemeProvider>
-      <div className="bg-theme min-h-screen flex flex-col">
+      <ThemedBackground>
         <Header />
-        <main className="container mx-auto px-4 py-8 flex-grow">
-          <Providers>{children}</Providers>
-        </main>
-      </div>
+        <div className="flex justify-center w-full">
+          <main className="w-full max-w-7xl px-4 py-6 flex-grow">
+            <Providers>{children}</Providers>
+          </main>
+        </div>
+      </ThemedBackground>
     </ThemeProvider>
   );
 }

@@ -7,7 +7,15 @@ import React, {
 } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Task, TasksState, User } from "../types";
-import { getTasks, saveTasks } from "../utils/localStorage";
+import {
+  getTasks,
+  saveTasks,
+  saveTask,
+  getUsers,
+  saveUsers,
+  getCurrentUser,
+  saveCurrentUser,
+} from "../utils/localStorage";
 import { useAuth } from "./AuthContext";
 
 interface TaskContextType extends TasksState {
@@ -43,30 +51,47 @@ interface TaskProviderProps {
 
 export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const storedTasks = getTasks();
     setTasks(storedTasks);
+    setIsLoaded(true);
+
+    console.log("Initial tasks loaded:", storedTasks);
+    console.log("localStorage state:", {
+      tasks: localStorage.getItem("tasks"),
+      managementTasks: localStorage.getItem("tasks-management-tasks"),
+      users: localStorage.getItem("tasks-management-users"),
+      currentUser: localStorage.getItem("tasks-management-current-user"),
+    });
+
+    if (localStorage.getItem("tasks")) {
+      localStorage.removeItem("tasks");
+    }
   }, []);
 
   useEffect(() => {
+    if (!isLoaded) return;
+    console.log("Tasks saved to localStorage:", tasks);
     saveTasks(tasks);
-  }, [tasks]);
+  }, [tasks, isLoaded]);
 
   const addTaskToUser = (userId: string, task: Task) => {
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
-    const user = users.find((user: User) => user.id === userId);
+    const users = getUsers();
+    const currentUser = getCurrentUser();
 
-    if (user) {
-      if (!user.tasks) user.tasks = [];
-      user.tasks.push(task);
-      localStorage.setItem("users", JSON.stringify(users));
-    } else if (currentUser) {
+    const userToUpdate = users.find((user) => user.id === userId);
+
+    if (userToUpdate) {
+      if (!userToUpdate.tasks) userToUpdate.tasks = [];
+      userToUpdate.tasks.push(task);
+      saveUsers(users);
+    } else if (currentUser && currentUser.id === userId) {
       if (!currentUser.tasks) currentUser.tasks = [];
       currentUser.tasks.push(task);
-      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      saveCurrentUser(currentUser);
     }
   };
 
@@ -92,10 +117,12 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       updatedAt: new Date(),
     };
 
-    addTaskToUser(assignedUserId, newTask);
+    const updatedTasks = [...tasks, newTask];
+    setTasks(updatedTasks);
 
-    setTasks((prevTasks) => [...prevTasks, newTask]);
-    localStorage.setItem("tasks", JSON.stringify(getTasks()));
+    saveTasks(updatedTasks);
+
+    addTaskToUser(assignedUserId, newTask);
   };
 
   const updateTask = (
@@ -123,7 +150,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     updatedTasks[taskIndex] = updatedTask;
 
     setTasks(updatedTasks);
-    localStorage.setItem("tasks", JSON.stringify(getTasks()));
+    saveTasks(updatedTasks);
     return true;
   };
 
@@ -139,8 +166,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       return false;
     }
 
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-    localStorage.setItem("tasks", JSON.stringify(getTasks()));
+    const updatedTasks = tasks.filter((task) => task.id !== taskId);
+    setTasks(updatedTasks);
+    saveTasks(updatedTasks);
     return true;
   };
 
@@ -169,7 +197,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     updatedTasks[taskIndex] = updatedTask;
 
     setTasks(updatedTasks);
-    localStorage.setItem("tasks", JSON.stringify(getTasks()));
+    saveTasks(updatedTasks);
     return true;
   };
 

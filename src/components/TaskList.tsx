@@ -3,7 +3,7 @@ import { Task, User } from "../types";
 import TaskCard from "./TaskCard";
 import TaskForm from "./TaskForm";
 import Button from "./Button";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaTimes } from "react-icons/fa";
 import { getUsers } from "../utils/localStorage";
 
 interface TaskListProps {
@@ -57,12 +57,24 @@ const TaskList: React.FC<TaskListProps> = ({
   });
 
   return (
-    <div>
+    <div className="task-list w-full">
       {showAddForm && (
-        <div className="mb-6">
+        <div className="mb-4 sticky top-0 z-10 bg-white dark:bg-gray-800 pb-3 pt-1">
           {isAddingTask ? (
-            <div className="card p-4 animate-fade-in">
-              <h3 className="text-lg font-semibold mb-3">Yeni Görev Ekle</h3>
+            <div className="card p-4 animate-fade-in shadow-md">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-base font-medium text-gray-800 dark:text-gray-200">
+                  Yeni Görev Ekle
+                </h3>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setIsAddingTask(false)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-1"
+                >
+                  <FaTimes className="h-3 w-3" />
+                </Button>
+              </div>
               <TaskForm
                 onSuccess={() => setIsAddingTask(false)}
                 onCancel={() => setIsAddingTask(false)}
@@ -73,7 +85,7 @@ const TaskList: React.FC<TaskListProps> = ({
               onClick={() => setIsAddingTask(true)}
               variant="primary"
               leftIcon={<FaPlus />}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto shadow-sm hover:shadow"
             >
               Yeni Görev Ekle
             </Button>
@@ -82,13 +94,16 @@ const TaskList: React.FC<TaskListProps> = ({
       )}
 
       {sortedTasks.length === 0 && !isAddingTask ? (
-        <div className="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <p className="text-gray-500 dark:text-gray-400">
+        <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <p className="text-gray-500 dark:text-gray-400 text-lg">
             Henüz görev bulunmamaktadır.
+          </p>
+          <p className="text-gray-400 dark:text-gray-500 mt-2">
+            Yeni görev eklemek için yukarıdaki butonu kullanabilirsiniz.
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 pb-6">
           {sortedTasks.map((task) => {
             if (!task || typeof task !== "object") return null;
             const user = users.find((u) => u.id === task.userId);

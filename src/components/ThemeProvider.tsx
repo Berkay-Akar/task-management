@@ -33,21 +33,37 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (!mounted) return;
 
     const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
 
-    document.body.style.backgroundColor =
-      theme === "dark" ? "var(--background)" : "var(--background)";
+    // Apply theme with a slight delay for smooth transition
+    const applyTheme = () => {
+      if (theme === "dark") {
+        root.classList.add("dark");
+      } else {
+        root.classList.remove("dark");
+      }
+    };
+
+    // Add transition class before changing theme
+    root.classList.add("theme-transition");
+
+    // Apply theme after a short delay to ensure transition works
+    const timer = setTimeout(() => {
+      applyTheme();
+      // Remove transition class after theme is applied
+      setTimeout(() => {
+        root.classList.remove("theme-transition");
+      }, 300);
+    }, 50);
 
     localStorage.setItem("theme", theme);
+
+    return () => clearTimeout(timer);
   }, [theme, mounted]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
+
   if (!mounted) {
     return <>{children}</>;
   }

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Task, User } from "../types";
 import { useTasks } from "../context/TaskContext";
 import { useAuth } from "../context/AuthContext";
 import { getUsers } from "../utils/localStorage";
 import Input from "./Input";
 import Button from "./Button";
-import { FaFlag } from "react-icons/fa";
+import { FaFlag, FaUser, FaTimes, FaPlus, FaCheck } from "react-icons/fa";
 
 interface TaskFormProps {
   task?: Task;
@@ -25,10 +25,35 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchedUsers = getUsers();
     setUsers(fetchedUsers);
+
+    if (task?.userId) {
+      const assignedUser = fetchedUsers.find((user) => user.id === task.userId);
+      if (assignedUser) {
+        setSearchTerm(assignedUser.name);
+        setAssignedUserId(assignedUser.id);
+      }
+    }
+  }, [task]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const filteredUsers = users.filter((user) =>
@@ -43,27 +68,38 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
       return;
     }
 
-    const taskData = {
-      title: title.trim(),
-      description: description.trim(),
-      priority,
-      userId: currentUser?.isAdmin ? assignedUserId : currentUser?.id || "",
-      status: "incomplete" as "incomplete" | "complete",
-      createdAt: task?.createdAt || new Date(),
-      updatedAt: new Date(),
-    };
+    const userId =
+      currentUser?.isAdmin && assignedUserId ? assignedUserId : currentUser?.id;
 
-    if (task) {
-      updateTask(task.id, { ...taskData });
-    } else {
-      // Use the same userId logic that you used for taskData
-      const userId = currentUser?.isAdmin
-        ? assignedUserId
-        : currentUser?.id || "";
-      addTask(title.trim(), description.trim(), priority, userId);
+    if (!userId) {
+      alert("Kullanıcı kimliği bulunamadı. Lütfen tekrar giriş yapın.");
+      return;
     }
 
-    onSuccess?.();
+    try {
+      if (task) {
+        updateTask(task.id, {
+          title: title.trim(),
+          description: description.trim(),
+          priority,
+          status: task.status,
+        });
+      } else {
+        addTask(title.trim(), description.trim(), priority, userId);
+      }
+      if (!task) {
+        setTitle("");
+        setDescription("");
+        setPriority("medium");
+        setAssignedUserId("");
+        setSearchTerm("");
+      }
+
+      onSuccess?.();
+    } catch (error) {
+      console.error("Error handling task:", error);
+      alert("Görev işlenirken bir hata oluştu.");
+    }
   };
 
   const priorityOptions = [
@@ -86,13 +122,17 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        label="Başlık"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        required
-      />
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <Input
+          label="Başlık"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          placeholder="Görev başlığı"
+          className="text-sm py-1.5 text-gray-800 dark:text-gray-200"
+        />
+      </div>
 
       <Input
         label="Açıklama"
@@ -100,33 +140,40 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
         onChange={(e) => setDescription(e.target.value)}
         required
         type="textarea"
+        rows={2}
+        placeholder="Görev açıklaması"
+        className="text-sm py-1.5"
       />
-
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <div className="flex flex-col space-y-1">
+        <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
           Öncelik
         </label>
-        <div className="flex space-x-2">
-          {["low", "medium", "high"].map((p) => (
-            <Button
-              key={p}
+        <div className="flex space-x-1">
+          {priorityOptions.map((option) => (
+            <button
+              key={option.value}
               type="button"
-              className={`capitalize ${
-                priority === p
-                  ? "bg-primary text-white"
-                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+              className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${
+                option.color
+              } ${
+                priority === option.value
+                  ? "ring-1 ring-offset-1 ring-primary shadow-sm"
+                  : "hover:opacity-80"
               }`}
-              onClick={() => setPriority(p as "low" | "medium" | "high")}
+              onClick={(e) => {
+                e.preventDefault();
+                setPriority(option.value as "low" | "medium" | "high");
+              }}
             >
-              {p === "low" ? "Düşük" : p === "medium" ? "Orta" : "Yüksek"}
-            </Button>
+              {option.label}
+            </button>
           ))}
         </div>
       </div>
 
       {currentUser?.isAdmin && (
-        <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <div className="relative" ref={dropdownRef}>
+          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
             Görevi Ata
           </label>
           <div className="relative">
@@ -138,13 +185,15 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
               }}
               placeholder="Kullanıcı ara..."
               onFocus={() => setIsDropdownOpen(true)}
+              leftIcon={<FaUser className="text-gray-400 h-3 w-3" />}
+              className="text-sm py-1.5"
             />
             {isDropdownOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto">
+              <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-32 overflow-auto">
                 {filteredUsers.map((user) => (
                   <div
                     key={user.id}
-                    className={`px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
+                    className={`px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
                       assignedUserId === user.id
                         ? "bg-blue-50 dark:bg-blue-900"
                         : ""
@@ -164,19 +213,29 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
         </div>
       )}
 
-      <div className="flex justify-end space-x-2 pt-4">
+      <div className="flex justify-end space-x-2 pt-2">
         {onCancel && (
           <Button
             type="button"
-            className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
+            size="sm"
+            className="bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
             onClick={onCancel}
+            leftIcon={<FaTimes className="h-3 w-3" />}
           >
             İptal
           </Button>
         )}
         <Button
           type="submit"
-          className="bg-primary text-white hover:bg-primary-dark"
+          size="sm"
+          className="bg-green-500 text-white hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700"
+          leftIcon={
+            task ? (
+              <FaCheck className="h-3 w-3" />
+            ) : (
+              <FaPlus className="h-3 w-3" />
+            )
+          }
         >
           {task ? "Güncelle" : "Ekle"}
         </Button>

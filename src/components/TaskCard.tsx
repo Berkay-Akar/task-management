@@ -102,10 +102,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, userName }) => {
                 <FaEdit />
               </Button>
               <Button
-                variant="danger"
+                variant="outline"
                 size="sm"
                 onClick={handleDelete}
                 title="Sil"
+                className="bg-red-100 hover:bg-red-200 text-red-600 rounded-full dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
               >
                 <FaTrash />
               </Button>

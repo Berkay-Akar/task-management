@@ -1,215 +1,217 @@
-import React, { useState, useEffect, useRef } from "react";
+"use client";
+
+import React, { useState, useContext, useEffect } from "react";
+import { TaskContext } from "../context/TaskContext";
+import { AuthContext } from "../context/AuthContext";
 import { Task, User } from "../types";
-import { useTasks } from "../context/TaskContext";
-import { useAuth } from "../context/AuthContext";
-import { getUsers } from "../utils/localStorage";
-import Input from "./Input";
 import Button from "./Button";
-import { FaFlag, FaUser, FaTimes, FaPlus, FaCheck } from "react-icons/fa";
+import { FaFlag } from "react-icons/fa";
 
 interface TaskFormProps {
   task?: Task;
   onSuccess?: () => void;
   onCancel?: () => void;
+  isModal?: boolean;
+  isAdmin?: boolean;
+  users?: User[];
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
-  const { addTask, updateTask } = useTasks();
-  const { user: currentUser } = useAuth();
+const TaskForm: React.FC<TaskFormProps> = ({
+  task,
+  onSuccess,
+  onCancel,
+  isModal = false,
+  isAdmin = false,
+  users = [],
+}) => {
+  const { addTask, updateTask } = useContext(TaskContext);
+  const { user } = useContext(AuthContext);
+  const isEditing = !!task;
+
   const [title, setTitle] = useState(task?.title || "");
   const [description, setDescription] = useState(task?.description || "");
   const [priority, setPriority] = useState<"low" | "medium" | "high">(
     task?.priority || "medium"
   );
-  const [assignedUserId, setAssignedUserId] = useState(task?.userId || "");
-  const [users, setUsers] = useState<User[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const fetchedUsers = getUsers();
-    setUsers(fetchedUsers);
-
-    if (task?.userId) {
-      const assignedUser = fetchedUsers.find((user) => user.id === task.userId);
-      if (assignedUser) {
-        setSearchTerm(assignedUser.name);
-        setAssignedUserId(assignedUser.id);
-      }
-    }
-  }, [task]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const [assignedUserId, setAssignedUserId] = useState<string>(
+    task?.userId || user?.id || ""
   );
+  const [error, setError] = useState("");
+
+  // Reset form when task changes
+  useEffect(() => {
+    if (task) {
+      setTitle(task.title);
+      setDescription(task.description);
+      setPriority(task.priority || "medium");
+      setAssignedUserId(task.userId);
+    } else {
+      setTitle("");
+      setDescription("");
+      setPriority("medium");
+      setAssignedUserId(user?.id || "");
+    }
+  }, [task, user?.id]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
 
-    if (!title.trim() || !description.trim()) {
-      alert("Lütfen başlık ve açıklama alanlarını doldurunuz.");
+    if (!title.trim()) {
+      setError("Başlık alanı boş bırakılamaz");
       return;
     }
 
-    const userId =
-      currentUser?.isAdmin && assignedUserId ? assignedUserId : currentUser?.id;
-
-    if (!userId) {
-      alert("Kullanıcı kimliği bulunamadı. Lütfen tekrar giriş yapın.");
+    if (!user) {
+      setError("Kullanıcı oturumu bulunamadı");
       return;
     }
 
     try {
-      if (task) {
-        updateTask(task.id, {
+      // If editing, update the task
+      if (isEditing && task) {
+        const success = updateTask(task.id, {
           title: title.trim(),
           description: description.trim(),
           priority,
-          status: task.status,
+          // We don't include userId in updates as it's not allowed in the updateTask interface
         });
+
+        if (!success) {
+          setError("Görev güncellenemedi. Yetkiniz olmayabilir.");
+          return;
+        }
       } else {
+        // If creating a new task
+        const userId = isAdmin ? assignedUserId : user.id;
         addTask(title.trim(), description.trim(), priority, userId);
       }
-      if (!task) {
-        setTitle("");
-        setDescription("");
-        setPriority("medium");
-        setAssignedUserId("");
-        setSearchTerm("");
-      }
 
-      onSuccess?.();
-    } catch (error) {
-      console.error("Error handling task:", error);
-      alert("Görev işlenirken bir hata oluştu.");
+      // Reset form
+      setTitle("");
+      setDescription("");
+      setPriority("medium");
+
+      // Call onSuccess if provided
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (err) {
+      console.error("Error saving task:", err);
+      setError("Görev kaydedilirken bir hata oluştu");
     }
   };
 
+  const inputClasses =
+    "px-3 py-2 border rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:border-gray-600";
+
+  // Priority options with their styles
   const priorityOptions = [
     {
       value: "low",
       label: "Düşük",
-      color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+      color:
+        "bg-[var(--priority-low-bg)] text-[var(--priority-low-text)] border border-[var(--priority-low-border)]",
     },
     {
       value: "medium",
       label: "Orta",
       color:
-        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+        "bg-[var(--priority-medium-bg)] text-[var(--priority-medium-text)] border border-[var(--priority-medium-border)]",
     },
     {
       value: "high",
       label: "Yüksek",
-      color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+      color:
+        "bg-[var(--priority-high-bg)] text-[var(--priority-high-text)] border border-[var(--priority-high-border)]",
     },
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <Input
-          label="Başlık"
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="p-2 bg-red-100 text-red-700 rounded-md text-sm">
+          {error}
+        </div>
+      )}
+
+      <div>
+        <label htmlFor="title" className="block text-sm font-medium mb-1">
+          Başlık
+        </label>
+        <input
+          id="title"
+          type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          required
+          className={inputClasses}
           placeholder="Görev başlığı"
-          className="text-sm py-1.5 text-gray-800 dark:text-gray-200"
+          autoFocus
         />
       </div>
 
-      <Input
-        label="Açıklama"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        required
-        type="textarea"
-        rows={2}
-        placeholder="Görev açıklaması"
-        className="text-sm py-1.5"
-      />
-      <div className="flex flex-col space-y-1">
-        <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-          Öncelik
+      <div>
+        <label htmlFor="description" className="block text-sm font-medium mb-1">
+          Açıklama
         </label>
-        <div className="flex space-x-1">
+        <textarea
+          id="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className={`${inputClasses} resize-none h-24`}
+          placeholder="Görev açıklaması"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium mb-1">Öncelik</label>
+        <div className="flex space-x-2">
           {priorityOptions.map((option) => (
             <button
               key={option.value}
               type="button"
-              className={`px-2 py-1 text-xs rounded-md transition-all duration-200 ${
+              className={`px-3 py-1.5 text-xs rounded-md transition-all duration-200 flex items-center ${
                 option.color
               } ${
                 priority === option.value
-                  ? "ring-1 ring-offset-1 ring-primary shadow-sm"
-                  : "hover:opacity-80"
+                  ? "ring-2 ring-offset-1 ring-primary shadow-sm transform scale-105"
+                  : "hover:opacity-90 hover:shadow-sm"
               }`}
-              onClick={(e) => {
-                e.preventDefault();
-                setPriority(option.value as "low" | "medium" | "high");
-              }}
+              onClick={() =>
+                setPriority(option.value as "low" | "medium" | "high")
+              }
             >
+              <FaFlag className="h-2.5 w-2.5 mr-1" />
               {option.label}
             </button>
           ))}
         </div>
       </div>
 
-      {currentUser?.isAdmin && (
-        <div className="relative" ref={dropdownRef}>
-          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Görevi Ata
+      {/* User assignment dropdown for admins */}
+      {isAdmin && (
+        <div>
+          <label
+            htmlFor="assignedUser"
+            className="block text-sm font-medium mb-1"
+          >
+            Görev Atanacak Kullanıcı
           </label>
-          <div className="relative">
-            <Input
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setIsDropdownOpen(true);
-              }}
-              placeholder="Kullanıcı ara..."
-              onFocus={() => setIsDropdownOpen(true)}
-              leftIcon={<FaUser className="text-gray-400 h-3 w-3" />}
-              className="text-sm py-1.5"
-            />
-            {isDropdownOpen && (
-              <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-32 overflow-auto">
-                {filteredUsers.map((user) => (
-                  <div
-                    key={user.id}
-                    className={`px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                      assignedUserId === user.id
-                        ? "bg-blue-50 dark:bg-blue-900"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      setAssignedUserId(user.id);
-                      setSearchTerm(user.name);
-                      setIsDropdownOpen(false);
-                    }}
-                  >
-                    {user.name}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <select
+            id="assignedUser"
+            value={assignedUserId}
+            onChange={(e) => setAssignedUserId(e.target.value)}
+            className={inputClasses}
+          >
+            <option value="" disabled>
+              Kullanıcı seçin
+            </option>
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.name}
+              </option>
+            ))}
+          </select>
         </div>
       )}
 
@@ -217,27 +219,19 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSuccess, onCancel }) => {
         {onCancel && (
           <Button
             type="button"
-            size="sm"
-            className="bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
             onClick={onCancel}
-            leftIcon={<FaTimes className="h-3 w-3" />}
+            variant="ghost"
+            className="text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-gray-700"
           >
             İptal
           </Button>
         )}
         <Button
           type="submit"
-          size="sm"
-          className="bg-green-500 text-white hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700"
-          leftIcon={
-            task ? (
-              <FaCheck className="h-3 w-3" />
-            ) : (
-              <FaPlus className="h-3 w-3" />
-            )
-          }
+          variant="primary"
+          className="bg-primary hover:bg-primary-hover text-white"
         >
-          {task ? "Güncelle" : "Ekle"}
+          {isEditing ? "Güncelle" : "Ekle"}
         </Button>
       </div>
     </form>

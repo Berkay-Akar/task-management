@@ -18,7 +18,8 @@ import {
 } from "../utils/localStorage";
 import { useAuth } from "./AuthContext";
 
-interface TaskContextType extends TasksState {
+interface TaskContextType {
+  tasks: Task[];
   addTask: (
     title: string,
     description: string,
@@ -33,9 +34,19 @@ interface TaskContextType extends TasksState {
   toggleTaskStatus: (taskId: string) => boolean;
   getUserTasks: () => Task[];
   getAllTasks: () => Task[];
+  addTaskToUser: (userId: string, task: Task) => void;
 }
 
-const TaskContext = createContext<TaskContextType | undefined>(undefined);
+export const TaskContext = createContext<TaskContextType>({
+  tasks: [],
+  addTask: () => {},
+  updateTask: () => false,
+  deleteTask: () => false,
+  toggleTaskStatus: () => false,
+  getUserTasks: () => [],
+  getAllTasks: () => [],
+  addTaskToUser: () => {},
+});
 
 export const useTasks = () => {
   const context = useContext(TaskContext);
@@ -59,14 +70,6 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     setTasks(storedTasks);
     setIsLoaded(true);
 
-    console.log("Initial tasks loaded:", storedTasks);
-    console.log("localStorage state:", {
-      tasks: localStorage.getItem("tasks"),
-      managementTasks: localStorage.getItem("tasks-management-tasks"),
-      users: localStorage.getItem("tasks-management-users"),
-      currentUser: localStorage.getItem("tasks-management-current-user"),
-    });
-
     if (localStorage.getItem("tasks")) {
       localStorage.removeItem("tasks");
     }
@@ -74,7 +77,6 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (!isLoaded) return;
-    console.log("Tasks saved to localStorage:", tasks);
     saveTasks(tasks);
   }, [tasks, isLoaded]);
 
@@ -226,6 +228,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
         toggleTaskStatus,
         getUserTasks,
         getAllTasks,
+        addTaskToUser,
       }}
     >
       {children}

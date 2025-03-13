@@ -7,12 +7,14 @@ import MoonIcon from "./icons/moonIcon";
 import SunIcon from "./icons/sunIcon";
 import Button from "./Button";
 import { useRouter, usePathname } from "next/navigation";
+import { FaUser } from "react-icons/fa";
 
 interface HeaderProps {
   userName?: string;
+  className?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ userName }) => {
+const Header: React.FC<HeaderProps> = ({ userName, className = "" }) => {
   const { theme, toggleTheme } = useTheme();
   const { user, isAuthenticated, logout } = useAuth();
   const router = useRouter();
@@ -37,16 +39,16 @@ const Header: React.FC<HeaderProps> = ({ userName }) => {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-md">
+    <header className={`bg-white dark:bg-gray-800 shadow-md ${className}`}>
       <div className="flex justify-center w-full">
         <div className="container max-w-7xl px-4 py-4 flex justify-between items-center w-full">
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="dashboard-heading text-xl">
             Görev Yönetim Uygulaması
           </h1>
           <div className="flex items-center space-x-4">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+              className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-600 transition-colors cursor-pointer"
               aria-label={
                 theme === "light"
                   ? "Switch to dark theme"
@@ -54,7 +56,7 @@ const Header: React.FC<HeaderProps> = ({ userName }) => {
               }
             >
               {theme === "light" ? (
-                <MoonIcon className="h-5 w-5" />
+                <MoonIcon className="h-5 w-5 text-gray-700" />
               ) : (
                 <SunIcon className="h-5 w-5 text-yellow-300" />
               )}
@@ -62,12 +64,23 @@ const Header: React.FC<HeaderProps> = ({ userName }) => {
 
             {isAuth && (
               <>
-                <span className="text-gray-700 dark:text-gray-300 hidden sm:inline-block">
-                  {displayName}{" "}
-                  {user?.isAdmin && <span className="text-yellow-500">👑</span>}
-                </span>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded-full p-2.5">
+                    <FaUser className="h-4 w-4 text-white dark:text-gray-300" />
+                  </div>
+                  <span className="dashboard-heading text-sm">
+                    {displayName}
+                    {user?.isAdmin && (
+                      <span className="ml-1 text-yellow-500">👑</span>
+                    )}
+                  </span>
+                </div>
 
-                <Button variant="outline" onClick={handleLogout}>
+                <Button
+                  className=" text-gray-800 border border-gray-300 hover:bg-gray-200 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white"
+                  variant="ghost"
+                  onClick={handleLogout}
+                >
                   Çıkış Yap
                 </Button>
               </>
@@ -75,7 +88,8 @@ const Header: React.FC<HeaderProps> = ({ userName }) => {
 
             {!isAuth && (
               <Button
-                variant="outline"
+                className=" text-gray-800 border border-gray-300 hover:bg-gray-200 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white"
+                variant="ghost"
                 onClick={() => router.push("/auth/login")}
               >
                 Giriş Yap

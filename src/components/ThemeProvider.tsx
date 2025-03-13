@@ -18,7 +18,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
-  // Only run on client side
   useEffect(() => {
     setMounted(true);
     const savedTheme = localStorage.getItem("theme") as Theme;
@@ -34,7 +33,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     const root = document.documentElement;
 
-    // Apply theme with a slight delay for smooth transition
     const applyTheme = () => {
       if (theme === "dark") {
         root.classList.add("dark");
@@ -43,13 +41,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Add transition class before changing theme
     root.classList.add("theme-transition");
 
-    // Apply theme after a short delay to ensure transition works
     const timer = setTimeout(() => {
       applyTheme();
-      // Remove transition class after theme is applied
       setTimeout(() => {
         root.classList.remove("theme-transition");
       }, 300);

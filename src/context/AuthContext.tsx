@@ -17,16 +17,27 @@ import {
 } from "../utils/localStorage";
 import { validateTCKimlikNo } from "../utils/tcKimlikValidator";
 
-interface AuthContextType extends AuthState {
+interface AuthContextType {
+  user: User | null;
+  users: User[];
   login: (tcKimlikNo: string) => { success: boolean; message: string };
+  logout: () => void;
   register: (
     tcKimlikNo: string,
     name: string
   ) => { success: boolean; message: string };
-  logout: () => void;
+  isAuthenticated: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Create the context with a default value
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  users: [],
+  login: () => ({ success: false, message: "" }),
+  logout: () => {},
+  register: () => ({ success: false, message: "" }),
+  isAuthenticated: false,
+});
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -128,6 +139,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         login,
         register,
         logout,
+        users: getUsers(),
       }}
     >
       {children}

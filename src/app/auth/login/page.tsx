@@ -140,7 +140,7 @@ export default function LoginPage() {
               <div className="inline-block px-4 py-2 bg-[var(--primary-subtle)] dark:bg-[var(--primary-hover)]/20 rounded-lg border border-[var(--primary-light)] dark:border-[var(--primary-hover)]">
                 <p className=" text-sm text-white dark:text-gray-300">
                   <span className="font-medium">Demo Giriş:</span> Admin
-                  (12345678910)
+                  (10000000146)
                 </p>
               </div>
             </div>

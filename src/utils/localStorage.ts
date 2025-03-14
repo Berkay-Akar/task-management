@@ -154,7 +154,7 @@ export const initializeUsers = (): void => {
   if (users.length === 0) {
     const adminUser: User = {
       id: "1",
-      tcKimlikNo: "12345678910",
+      tcKimlikNo: "10000000146",
       name: "Admin User",
       isAdmin: true,
     };

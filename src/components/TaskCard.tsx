@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useRef, useContext } from "react";
+import React, { useRef, useContext, useState } from "react";
 import { FaEdit, FaTrash, FaCheck, FaUndo } from "react-icons/fa";
 import { Task } from "../types";
 import { TaskContext } from "../context/TaskContext";
 import Button from "./Button";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 interface TaskCardProps {
   task: Task;
@@ -21,6 +22,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
 }) => {
   const { toggleTaskStatus, deleteTask } = useContext(TaskContext);
   const cardRef = useRef<HTMLDivElement>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleToggleStatus = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -29,9 +31,11 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm("Bu görevi silmek istediğinizden emin misiniz?")) {
-      deleteTask(task.id);
-    }
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    deleteTask(task.id);
   };
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -90,89 +94,100 @@ const TaskCard: React.FC<TaskCardProps> = ({
       : "text-green-700 dark:text-green-300/90";
 
   return (
-    <div
-      ref={cardRef}
-      className={`card ${cardBackground} shadow-sm hover:shadow-md transition-all duration-200 p-4 rounded-lg task-card-hover ${
-        canEdit ? "cursor-pointer" : ""
-      }`}
-      onClick={canEdit ? handleEdit : undefined}
-    >
-      <div className="flex flex-col h-full">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className={`text-lg font-bold ${titleTextColor}`}>
-            {task.title}
-          </h3>
-          <div className="flex space-x-1">
-            <span
-              className={`text-xs px-2 py-1 rounded-full ${
-                priorityStyles[task.priority as keyof typeof priorityStyles] ||
-                priorityStyles.medium
-              }`}
-            >
-              {task.priority === "high"
-                ? "Yüksek"
-                : task.priority === "medium"
-                ? "Orta"
-                : "Düşük"}
-            </span>
+    <>
+      <div
+        ref={cardRef}
+        className={`card ${cardBackground} shadow-sm hover:shadow-md transition-all duration-200 p-4 rounded-lg task-card-hover ${
+          canEdit ? "cursor-pointer" : ""
+        }`}
+        onClick={canEdit ? handleEdit : undefined}
+      >
+        <div className="flex flex-col h-full">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className={`text-lg font-bold ${titleTextColor}`}>
+              {task.title}
+            </h3>
+            <div className="flex space-x-1">
+              <span
+                className={`text-xs px-2 py-1 rounded-full ${
+                  priorityStyles[
+                    task.priority as keyof typeof priorityStyles
+                  ] || priorityStyles.medium
+                }`}
+              >
+                {task.priority === "high"
+                  ? "Yüksek"
+                  : task.priority === "medium"
+                  ? "Orta"
+                  : "Düşük"}
+              </span>
+            </div>
           </div>
-        </div>
 
-        <p className={`text-sm mb-3 flex-grow ${descriptionTextColor}`}>
-          {task.description}
-        </p>
+          <p className={`text-sm mb-3 flex-grow ${descriptionTextColor}`}>
+            {task.description}
+          </p>
 
-        <div className="flex justify-between items-center mt-auto pt-2 border-t border-gray-300 dark:border-gray-700">
-          <span className="text-xs text-gray-700 dark:text-gray-400 font-semibold">
-            {userName}
-          </span>
+          <div className="flex justify-between items-center mt-auto pt-2 border-t border-gray-300 dark:border-gray-700">
+            <span className="text-xs text-gray-700 dark:text-gray-400 font-semibold">
+              {userName}
+            </span>
 
-          <div className="flex space-x-1">
-            {canEdit && (
-              <>
-                <Button
-                  size="xs"
-                  variant="ghost"
-                  onClick={handleEdit}
-                  className={editButtonClass}
-                  title="Düzenle"
-                >
-                  <FaEdit className="h-3.5 w-3.5" />
-                </Button>
+            <div className="flex space-x-1">
+              {canEdit && (
+                <>
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    onClick={handleEdit}
+                    className={editButtonClass}
+                    title="Düzenle"
+                  >
+                    <FaEdit className="h-3.5 w-3.5" />
+                  </Button>
 
-                <Button
-                  size="xs"
-                  variant="ghost"
-                  onClick={handleDelete}
-                  className={deleteButtonClass}
-                  title="Sil"
-                >
-                  <FaTrash className="h-3.5 w-3.5" />
-                </Button>
-              </>
-            )}
-
-            <Button
-              size="xs"
-              variant="ghost"
-              onClick={handleToggleStatus}
-              className={toggleButtonClass}
-              title={
-                task.status === "complete"
-                  ? "Yapılmadı olarak işaretle"
-                  : "Tamamlandı olarak işaretle"
-              }
-            >
-              {task.status === "complete" ? (
-                <FaUndo className="h-3.5 w-3.5" />
-              ) : (
-                <FaCheck className="h-3.5 w-3.5" />
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    onClick={handleDelete}
+                    className={deleteButtonClass}
+                    title="Sil"
+                  >
+                    <FaTrash className="h-3.5 w-3.5" />
+                  </Button>
+                </>
               )}
-            </Button>
+
+              <Button
+                size="xs"
+                variant="ghost"
+                onClick={handleToggleStatus}
+                className={toggleButtonClass}
+                title={
+                  task.status === "complete"
+                    ? "Yapılmadı olarak işaretle"
+                    : "Tamamlandı olarak işaretle"
+                }
+              >
+                {task.status === "complete" ? (
+                  <FaUndo className="h-3.5 w-3.5" />
+                ) : (
+                  <FaCheck className="h-3.5 w-3.5" />
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        itemName={task.title}
+      />
+    </>
   );
 };
 

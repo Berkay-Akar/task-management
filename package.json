@@ -3,11 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "next dev --turbopack",
+    "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "preview": "vite preview"
+    "lint": "next lint"
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",

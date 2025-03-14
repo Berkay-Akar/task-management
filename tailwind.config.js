@@ -7,5 +7,4 @@ module.exports = {
       },
     },
   },
-  // ... rest of your configuration
 }; 

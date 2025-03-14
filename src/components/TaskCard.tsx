@@ -45,7 +45,6 @@ const TaskCard: React.FC<TaskCardProps> = ({
     }
   };
 
-  // Priority badge styles - IMPROVED CONTRAST
   const priorityStyles = {
     high: "bg-[var(--priority-high-bg)] text-[var(--priority-high-text)] border border-[var(--priority-high-border)] font-bold",
     medium:
@@ -53,7 +52,6 @@ const TaskCard: React.FC<TaskCardProps> = ({
     low: "bg-[var(--priority-low-bg)] text-[var(--priority-low-text)] border border-[var(--priority-low-border)] font-bold",
   };
 
-  // Card background based on status and priority - ENHANCED CONTRAST
   const cardBackground =
     task.status === "complete"
       ? "bg-gray-100 dark:bg-gray-800/50 border-2 border-gray-300 dark:border-gray-700"
@@ -74,7 +72,6 @@ const TaskCard: React.FC<TaskCardProps> = ({
       ? "text-yellow-700  hover:text-white hover:bg-yellow-600 dark:text-yellow-400 dark:hover:text-yellow-100 dark:hover:bg-yellow-800 border border-yellow-200 hover:border-yellow-600 dark:border-yellow-800 dark:hover:border-yellow-700 shadow-sm"
       : "text-green-700  hover:text-white hover:bg-green-600 dark:text-green-400 dark:hover:text-green-100 dark:hover:bg-green-800 border border-green-200 hover:border-green-600 dark:border-green-800 dark:hover:border-green-700 shadow-sm";
 
-  // Text colors based on priority for better contrast
   const titleTextColor =
     task.status === "complete"
       ? "text-gray-600 dark:text-gray-400 line-through"

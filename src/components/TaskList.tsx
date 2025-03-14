@@ -68,12 +68,9 @@ const TaskList: React.FC<TaskListProps> = ({
 
   const handleEditTask = (taskId: string, cardElement: HTMLElement) => {
     if (!useCenteredModal) {
-      // Position the popup over the card (original behavior)
       if (cardElement) {
         const rect = cardElement.getBoundingClientRect();
         const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
-        // Calculate position - center the popup on the card
         setPopupPosition({
           top: rect.top + scrollTop,
           left: rect.left,
@@ -85,7 +82,6 @@ const TaskList: React.FC<TaskListProps> = ({
     setEditingTaskId(taskId === editingTaskId ? null : taskId);
   };
 
-  // Close popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const popup = document.getElementById("task-edit-popup");
@@ -106,7 +102,6 @@ const TaskList: React.FC<TaskListProps> = ({
     };
   }, [editingTaskId, isAddingTask]);
 
-  // Handle escape key to close popup
   useEffect(() => {
     const handleEscKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -154,7 +149,6 @@ const TaskList: React.FC<TaskListProps> = ({
             if (!task || typeof task !== "object") return null;
             const user = users.find((u) => u.id === task.userId);
 
-            // Determine if the current user can edit this task
             const userCanEdit = canEditTask(task.userId);
 
             return (

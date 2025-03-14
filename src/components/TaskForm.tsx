@@ -74,7 +74,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
           title: title.trim(),
           description: description.trim(),
           priority,
-          // We don't include userId in updates as it's not allowed in the updateTask interface
         });
 
         if (!success) {
@@ -92,7 +91,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
       setDescription("");
       setPriority("medium");
 
-      // Call onSuccess if provided
       if (onSuccess) {
         onSuccess();
       }
@@ -105,7 +103,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const inputClasses =
     "px-3 py-2 border rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:border-gray-600";
 
-  // Priority options with their styles
   const priorityOptions = [
     {
       value: "low",

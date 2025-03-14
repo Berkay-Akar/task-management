@@ -12,6 +12,7 @@ interface TaskListProps {
   searchTerm: string;
   filter: "all" | "priority" | "date";
   priorityOrder: "asc" | "desc";
+  dateOrder?: "asc" | "desc";
   isAdmin?: boolean;
   users?: User[];
 }
@@ -22,6 +23,7 @@ const TaskList: React.FC<TaskListProps> = ({
   searchTerm,
   filter,
   priorityOrder,
+  dateOrder = "desc",
   isAdmin = false,
   users = [],
 }) => {
@@ -56,6 +58,12 @@ const TaskList: React.FC<TaskListProps> = ({
       if (aPriority !== bPriority) {
         return priorityOrderMap[aPriority] - priorityOrderMap[bPriority];
       }
+    }
+
+    if (filter === "date") {
+      const dateA = new Date(a.updatedAt).getTime();
+      const dateB = new Date(b.updatedAt).getTime();
+      return dateOrder === "asc" ? dateA - dateB : dateB - dateA;
     }
 
     return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();

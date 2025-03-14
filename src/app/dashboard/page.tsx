@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<"all" | "priority" | "date">("all");
   const [priorityOrder, setPriorityOrder] = useState<"asc" | "desc">("desc");
+  const [dateOrder, setDateOrder] = useState<"asc" | "desc">("desc");
   const [users, setUsers] = useState<User[]>([]);
 
   // Load users from localStorage
@@ -82,8 +83,17 @@ export default function Dashboard() {
                 </Button>
                 <Button
                   variant={filter === "date" ? "primary" : "ghost"}
-                  onClick={() => setFilter("date")}
-                  leftIcon={<FaSort className="h-3 w-3 sm:h-4 sm:w-4" />}
+                  onClick={() => {
+                    setFilter("date");
+                    setDateOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+                  }}
+                  leftIcon={
+                    dateOrder === "asc" ? (
+                      <FaSortAmountUp className="h-3 w-3 sm:h-4 sm:w-4" />
+                    ) : (
+                      <FaSortAmountDown className="h-3 w-3 sm:h-4 sm:w-4" />
+                    )
+                  }
                   className={`${
                     filter === "date"
                       ? "ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800"
@@ -126,6 +136,7 @@ export default function Dashboard() {
               searchTerm={searchTerm}
               filter={filter}
               priorityOrder={priorityOrder}
+              dateOrder={dateOrder}
               isAdmin={user.isAdmin}
               users={users}
             />

@@ -1,9 +1,17 @@
 "use client";
 
 import React, { useRef, useContext, useState } from "react";
-import { FaEdit, FaTrash, FaCheck, FaUndo } from "react-icons/fa";
+import {
+  FaEdit,
+  FaTrash,
+  FaCheck,
+  FaUndo,
+  FaUser,
+  FaCalendarAlt,
+} from "react-icons/fa";
 import { Task } from "../types";
 import { TaskContext } from "../context/TaskContext";
+import { AuthContext } from "../context/AuthContext";
 import Button from "./Button";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
@@ -21,8 +29,22 @@ const TaskCard: React.FC<TaskCardProps> = ({
   canEdit,
 }) => {
   const { toggleTaskStatus, deleteTask } = useContext(TaskContext);
+  const { user } = useContext(AuthContext);
   const cardRef = useRef<HTMLDivElement>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const isAdmin = user?.isAdmin || false;
+
+  const formatDate = (dateString: string | Date) => {
+    const date = dateString instanceof Date ? dateString : new Date(dateString);
+    return new Intl.DateTimeFormat("tr-TR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  };
 
   const handleToggleStatus = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -126,8 +148,18 @@ const TaskCard: React.FC<TaskCardProps> = ({
           </p>
 
           <div className="flex justify-between items-center mt-auto pt-2 border-t border-gray-300 dark:border-gray-700">
-            <span className="text-xs text-gray-700 dark:text-gray-400 font-semibold">
-              {userName}
+            <span className="text-xs text-gray-700 dark:text-gray-400 font-semibold flex items-center gap-1">
+              {isAdmin ? (
+                <>
+                  <FaUser className="h-3 w-3 text-gray-500" />
+                  {userName}
+                </>
+              ) : (
+                <>
+                  <FaCalendarAlt className="h-3 w-3 text-gray-500" />
+                  {formatDate(task.createdAt)}
+                </>
+              )}
             </span>
 
             <div className="flex space-x-1">

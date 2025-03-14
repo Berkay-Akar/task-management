@@ -78,10 +78,10 @@ const Header: React.FC<HeaderProps> = ({ userName, className = "" }) => {
     <header className={`bg-white dark:bg-gray-800 shadow-md ${className}`}>
       <div className="flex justify-center w-full">
         <div className="container max-w-7xl px-4 py-4 flex justify-between items-center w-full">
-          <h1 className="dashboard-heading text-xl">
+          <h1 className="dashboard-heading text-xl truncate max-w-[40%] sm:max-w-none">
             Görev Yönetim Uygulaması
           </h1>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <button
               onClick={toggleTheme}
               className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-600 transition-colors cursor-pointer"
@@ -100,7 +100,7 @@ const Header: React.FC<HeaderProps> = ({ userName, className = "" }) => {
 
             {isAuth && (
               <>
-                <div className="flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-2">
                   <div className="flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded-full p-2.5">
                     <FaUser className="h-4 w-4 text-white dark:text-gray-300" />
                   </div>
@@ -113,22 +113,24 @@ const Header: React.FC<HeaderProps> = ({ userName, className = "" }) => {
                 </div>
 
                 <Button
-                  className="text-gray-800 border border-gray-300 hover:bg-gray-200 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white"
+                  className="text-gray-800 border border-gray-300 hover:bg-gray-200 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5"
                   variant="ghost"
                   onClick={handleLogout}
                 >
-                  Çıkış Yap
+                  <span className="hidden sm:inline">Çıkış Yap</span>
+                  <span className="sm:hidden">Çıkış</span>
                 </Button>
               </>
             )}
 
             {!isAuth && (
               <Button
-                className="text-gray-800 border border-gray-300 hover:bg-gray-200 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white"
+                className="text-gray-800 border border-gray-300 hover:bg-gray-200 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5"
                 variant="ghost"
                 onClick={() => router.push("/auth/login")}
               >
-                Giriş Yap
+                <span className="hidden sm:inline">Giriş Yap</span>
+                <span className="sm:hidden">Giriş</span>
               </Button>
             )}
           </div>

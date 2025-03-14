@@ -66,30 +66,32 @@ export default function Dashboard() {
                 />
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400" />
               </div>
-              <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+              <div className="grid grid-cols-3 gap-1 sm:flex sm:gap-2 w-full sm:w-auto">
                 <Button
                   variant={filter === "all" ? "primary" : "ghost"}
                   onClick={() => setFilter("all")}
-                  leftIcon={<FaSort />}
+                  leftIcon={<FaSort className="h-3 w-3 sm:h-4 sm:w-4" />}
                   className={`${
                     filter === "all"
                       ? "ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800"
                       : "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                  }`}
+                  } text-xs sm:text-sm py-1 px-2 sm:py-1.5 sm:px-3`}
                 >
-                  Varsayılan
+                  <span className="hidden xs:inline">Varsayılan</span>
+                  <span className="xs:hidden">Var</span>
                 </Button>
                 <Button
                   variant={filter === "date" ? "primary" : "ghost"}
                   onClick={() => setFilter("date")}
-                  leftIcon={<FaSort />}
+                  leftIcon={<FaSort className="h-3 w-3 sm:h-4 sm:w-4" />}
                   className={`${
                     filter === "date"
                       ? "ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800"
                       : "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                  }`}
+                  } text-xs sm:text-sm py-1 px-2 sm:py-1.5 sm:px-3`}
                 >
-                  Tarih
+                  <span className="hidden xs:inline">Tarih</span>
+                  <span className="xs:hidden">Tar</span>
                 </Button>
                 <Button
                   variant={filter === "priority" ? "primary" : "ghost"}
@@ -101,18 +103,19 @@ export default function Dashboard() {
                   }}
                   leftIcon={
                     priorityOrder === "asc" ? (
-                      <FaSortAmountUp />
+                      <FaSortAmountUp className="h-3 w-3 sm:h-4 sm:w-4" />
                     ) : (
-                      <FaSortAmountDown />
+                      <FaSortAmountDown className="h-3 w-3 sm:h-4 sm:w-4" />
                     )
                   }
                   className={`${
                     filter === "priority"
                       ? "ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800"
                       : "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                  }`}
+                  } text-xs sm:text-sm py-1 px-2 sm:py-1.5 sm:px-3`}
                 >
-                  Öncelik
+                  <span className="hidden xs:inline">Öncelik</span>
+                  <span className="xs:hidden">Önc</span>
                 </Button>
               </div>
             </div>

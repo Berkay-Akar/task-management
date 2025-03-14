@@ -18,7 +18,6 @@ export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
   const { theme } = useTheme();
 
-  // Initialize default users if none exist
   useEffect(() => {
     initializeUsers();
   }, []);
@@ -34,15 +33,21 @@ export default function LoginPage() {
       setIsLoading(false);
       return;
     }
-    const result = login(tcKimlikNo);
 
-    if (result.success) {
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 100);
-      setIsLoading(false);
-    } else {
-      setError(result.message);
+    try {
+      const result = await login(tcKimlikNo);
+
+      if (result.success) {
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 100);
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Giriş yapılırken bir hata oluştu");
+    } finally {
       setIsLoading(false);
     }
   };

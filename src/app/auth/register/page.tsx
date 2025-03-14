@@ -30,12 +30,11 @@ export default function RegisterPage() {
     }
   }, [isAuthenticated, router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
-    // Validate inputs
     if (!name.trim()) {
       setError("Ad Soyad alanı gereklidir");
       setIsLoading(false);
@@ -48,16 +47,22 @@ export default function RegisterPage() {
       return;
     }
 
-    // Attempt registration
-    const result = register(tcKimlikNo, name);
+    try {
+      const result = await register(tcKimlikNo, name);
 
-    if (result.success) {
-      router.push("/dashboard");
-    } else {
-      setError(result.message);
+      if (result.success) {
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 100);
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      console.error("Registration error:", err);
+      setError("Kayıt olurken bir hata oluştu");
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (

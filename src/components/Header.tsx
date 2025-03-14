@@ -9,6 +9,36 @@ import Button from "./Button";
 import { useRouter, usePathname } from "next/navigation";
 import { FaUser } from "react-icons/fa";
 
+function useLocalStorage(key: string) {
+  const [value, setValue] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(key);
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    function handleStorageChange() {
+      setValue(localStorage.getItem(key));
+    }
+
+    window.addEventListener("storage", handleStorageChange);
+    const interval = setInterval(() => {
+      const currentValue = localStorage.getItem(key);
+      if (currentValue !== value) {
+        setValue(currentValue);
+      }
+    }, 100);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [key, value]);
+
+  return value;
+}
+
 interface HeaderProps {
   userName?: string;
   className?: string;
@@ -20,22 +50,29 @@ const Header: React.FC<HeaderProps> = ({ userName, className = "" }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [isAuth, setIsAuth] = useState(false);
+  const currentUserJson = useLocalStorage("tasks-management-current-user");
 
   useEffect(() => {
-    setIsAuth(isAuthenticated);
-  }, [isAuthenticated]);
+    setIsAuth(isAuthenticated || !!currentUserJson);
+  }, [isAuthenticated, currentUserJson]);
 
-  useEffect(() => {
-    setIsAuth(isAuthenticated);
-  }, [pathname, isAuthenticated]);
-
-  const displayName = userName || user?.name || "";
+  const displayName =
+    userName ||
+    user?.name ||
+    (currentUserJson ? JSON.parse(currentUserJson).name : "");
+  const isAdmin =
+    user?.isAdmin ||
+    (currentUserJson ? JSON.parse(currentUserJson).isAdmin : false);
 
   const handleLogout = async () => {
-    logout();
-    setTimeout(() => {
-      router.push("/auth/login");
-    }, 50);
+    try {
+      await logout();
+      setTimeout(() => {
+        router.push("/auth/login");
+      }, 50);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   return (
@@ -70,14 +107,14 @@ const Header: React.FC<HeaderProps> = ({ userName, className = "" }) => {
                   </div>
                   <span className="dashboard-heading text-sm">
                     {displayName}
-                    {user?.isAdmin && (
+                    {isAdmin && (
                       <span className="ml-1 text-yellow-500">👑</span>
                     )}
                   </span>
                 </div>
 
                 <Button
-                  className=" text-gray-800 border border-gray-300 hover:bg-gray-200 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white"
+                  className="text-gray-800 border border-gray-300 hover:bg-gray-200 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white"
                   variant="ghost"
                   onClick={handleLogout}
                 >
@@ -88,7 +125,7 @@ const Header: React.FC<HeaderProps> = ({ userName, className = "" }) => {
 
             {!isAuth && (
               <Button
-                className=" text-gray-800 border border-gray-300 hover:bg-gray-200 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white"
+                className="text-gray-800 border border-gray-300 hover:bg-gray-200 hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white"
                 variant="ghost"
                 onClick={() => router.push("/auth/login")}
               >

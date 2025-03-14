@@ -20,22 +20,21 @@ import { validateTCKimlikNo } from "../utils/tcKimlikValidator";
 interface AuthContextType {
   user: User | null;
   users: User[];
-  login: (tcKimlikNo: string) => { success: boolean; message: string };
-  logout: () => void;
+  login: (tcKimlikNo: string) => Promise<{ success: boolean; message: string }>;
+  logout: () => Promise<void>;
   register: (
     tcKimlikNo: string,
     name: string
-  ) => { success: boolean; message: string };
+  ) => Promise<{ success: boolean; message: string }>;
   isAuthenticated: boolean;
 }
 
-// Create the context with a default value
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   users: [],
-  login: () => ({ success: false, message: "" }),
-  logout: () => {},
-  register: () => ({ success: false, message: "" }),
+  login: () => Promise.resolve({ success: false, message: "" }),
+  logout: () => Promise.resolve(),
+  register: () => Promise.resolve({ success: false, message: "" }),
   isAuthenticated: false,
 });
 
@@ -67,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const login = (tcKimlikNo: string) => {
+  const login = async (tcKimlikNo: string) => {
     //TODO: delete this 14722951540
 
     if (!validateTCKimlikNo(tcKimlikNo)) {
@@ -81,16 +80,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return { success: false, message: "Kullanıcı bulunamadı" };
     }
 
+    // Save to localStorage first
+    saveCurrentUser(user);
+
+    // Then update state
     setAuthState({
       user,
       isAuthenticated: true,
     });
 
-    saveCurrentUser(user);
     return { success: true, message: "Giriş başarılı" };
   };
 
-  const register = (tcKimlikNo: string, name: string) => {
+  const register = async (tcKimlikNo: string, name: string) => {
     if (!validateTCKimlikNo(tcKimlikNo)) {
       return { success: false, message: "Geçersiz TC Kimlik Numarası" };
     }
@@ -113,18 +115,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     const updatedUsers = [...users, newUser];
-    saveUsers(updatedUsers);
 
+    // Save to localStorage first
+    saveUsers(updatedUsers);
+    saveCurrentUser(newUser);
+
+    // Then update state
     setAuthState({
       user: newUser,
       isAuthenticated: true,
     });
 
-    saveCurrentUser(newUser);
     return { success: true, message: "Kayıt ve giriş başarılı" };
   };
 
-  const logout = () => {
+  const logout = async () => {
     setAuthState({
       user: null,
       isAuthenticated: false,

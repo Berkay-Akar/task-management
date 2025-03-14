@@ -67,8 +67,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (tcKimlikNo: string) => {
-    //TODO: delete this 14722951540
-
     if (!validateTCKimlikNo(tcKimlikNo)) {
       return { success: false, message: "Geçersiz TC Kimlik Numarası" };
     }

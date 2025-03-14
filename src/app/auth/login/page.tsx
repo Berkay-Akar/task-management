@@ -52,16 +52,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 bg-theme-gradient">
+    <div className="fixed inset-0 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Card with subtle animation */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden transform transition-all duration-300 animate-modal-slide-up border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-y-auto">
-          {/* Header with gradient */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-800 dark:to-indigo-900 px-6 py-6 text-white sticky top-0 z-10">
+        <div className="bg-[var(--surface-0)] dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 animate-modal-slide-up border border-[var(--surface-2)] dark:border-gray-700 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[var(--primary)] dark:bg-[var(--primary-hover)] px-6 py-6 text-white sticky top-0 z-10">
             <h1 className="text-2xl font-bold text-center mb-1">
               Görev Yönetim
             </h1>
-            <p className="text-center text-blue-100 dark:text-blue-200 opacity-90 text-sm">
+            <p className="text-center text-white/80 dark:text-white/90 opacity-90 text-sm">
               Hesabınıza giriş yapın
             </p>
           </div>
@@ -76,7 +74,7 @@ export default function LoginPage() {
 
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-sm font-medium text-[var(--dashboard-text-heading)] dark:text-gray-300">
                   TC Kimlik Numarası
                 </label>
                 <div className="relative">
@@ -101,7 +99,7 @@ export default function LoginPage() {
                   type="submit"
                   disabled={isLoading}
                   isFullWidth
-                  className="py-2.5 text-base font-medium bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                  className="py-2.5 text-base font-medium bg-[var(--primary)] hover:bg-[var(--primary-hover)] dark:bg-[var(--primary)] dark:hover:bg-[var(--primary-hover)] text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   {isLoading ? "Giriş Yapılıyor..." : "Giriş Yap"}
                 </Button>
@@ -111,10 +109,10 @@ export default function LoginPage() {
             <div className="mt-5">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                  <div className="w-full border-t border-[var(--surface-2)] dark:border-gray-600"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                  <span className="px-2  dark:bg-gray-800 text-gray-500 dark:text-gray-400">
                     Hesabınız yok mu?
                   </span>
                 </div>
@@ -126,7 +124,7 @@ export default function LoginPage() {
                   onClick={handleRegister}
                   isFullWidth
                   variant="ghost"
-                  className="py-2.5 text-base font-medium border-2 border-blue-500 dark:border-blue-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                  className="py-2.5 text-base font-medium border-2 border-[var(--primary)] dark:border-[var(--primary-hover)] text-[var(--primary)] dark:text-[var(--primary-light)] hover:bg-[var(--primary-subtle)] dark:hover:bg-[var(--primary-hover)]/20 rounded-lg transition-colors"
                 >
                   Kayıt Ol
                 </Button>
@@ -134,8 +132,8 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-5 text-center">
-              <div className="inline-block px-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
-                <p className="dashboard-heading text-sm">
+              <div className="inline-block px-4 py-2 bg-[var(--primary-subtle)] dark:bg-[var(--primary-hover)]/20 rounded-lg border border-[var(--primary-light)] dark:border-[var(--primary-hover)]">
+                <p className=" text-sm text-white dark:text-gray-300">
                   <span className="font-medium">Demo Giriş:</span> Admin
                   (12345678910)
                 </p>

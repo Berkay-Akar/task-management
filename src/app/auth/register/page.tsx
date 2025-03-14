@@ -61,16 +61,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 bg-theme-gradient">
+    <div className="fixed inset-0 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Card with subtle animation */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden transform transition-all duration-300 animate-modal-slide-up border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-y-auto">
-          {/* Header with gradient */}
-          <div className="bg-gradient-to-r from-indigo-600 to-blue-600 dark:from-indigo-900 dark:to-blue-800 px-6 py-6 text-white sticky top-0 z-10">
+        <div className="bg-[var(--surface-0)] dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 animate-modal-slide-up border border-[var(--surface-2)] dark:border-gray-700 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[var(--primary)] dark:bg-[var(--primary-hover)] px-6 py-6 text-white sticky top-0 z-10">
             <h1 className="text-2xl font-bold text-center mb-1">
               Hesap Oluştur
             </h1>
-            <p className="text-center text-blue-100 dark:text-blue-200 opacity-90 text-sm">
+            <p className="text-center text-white/80 dark:text-white/90 opacity-90 text-sm">
               Görev yönetim sistemine kayıt olun
             </p>
           </div>
@@ -85,7 +83,7 @@ export default function RegisterPage() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-sm font-medium text-[var(--dashboard-text-heading)] dark:text-gray-300">
                   Ad Soyad
                 </label>
                 <div className="relative">
@@ -104,7 +102,7 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-sm font-medium text-[var(--dashboard-text-heading)] dark:text-gray-300">
                   TC Kimlik Numarası
                 </label>
                 <div className="relative">
@@ -129,7 +127,7 @@ export default function RegisterPage() {
                   type="submit"
                   disabled={isLoading}
                   isFullWidth
-                  className="py-2.5 text-base font-medium bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-800 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                  className="py-2.5 text-base font-medium bg-[var(--primary)] hover:bg-[var(--primary-hover)] dark:bg-[var(--primary)] dark:hover:bg-[var(--primary-hover)] text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   {isLoading ? "Kayıt Yapılıyor..." : "Kayıt Ol"}
                 </Button>
@@ -139,10 +137,10 @@ export default function RegisterPage() {
             <div className="mt-5">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                  <div className="w-full border-t border-[var(--surface-2)] dark:border-gray-600"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                  <span className="px-2 bg-[var(--surface-0)] dark:bg-gray-800 text-gray-500 dark:text-gray-400">
                     Zaten hesabınız var mı?
                   </span>
                 </div>
@@ -153,7 +151,7 @@ export default function RegisterPage() {
                   type="button"
                   isFullWidth
                   variant="ghost"
-                  className="py-2.5 mt-4 text-base font-medium border-2 border-indigo-500 dark:border-indigo-700 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors"
+                  className="py-2.5 mt-4 text-base font-medium border-2 border-[var(--primary)] dark:border-[var(--primary-hover)] text-[var(--primary)] dark:text-[var(--primary-light)] hover:bg-[var(--primary-subtle)] dark:hover:bg-[var(--primary-hover)]/20 rounded-lg transition-colors"
                 >
                   <div className="flex items-center justify-center w-full">
                     <FaArrowLeft className="mr-2 h-4 w-4" />

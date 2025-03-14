@@ -13,6 +13,7 @@ import {
   FaArrowLeft,
 } from "react-icons/fa";
 import { useTheme } from "../../../components/ThemeProvider";
+import { getCurrentUser } from "../../../utils/localStorage";
 
 export default function RegisterPage() {
   const [tcKimlikNo, setTcKimlikNo] = useState("");
@@ -20,15 +21,15 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { register, isAuthenticated } = useAuth();
+  const { register } = useAuth();
   const { theme } = useTheme();
 
-  // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
+    const user = getCurrentUser();
+    if (user) {
       router.push("/dashboard");
     }
-  }, [isAuthenticated, router]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,7 +152,7 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <Link href="/auth/login">
+              <Link href="/auth/login" passHref>
                 <Button
                   type="button"
                   isFullWidth

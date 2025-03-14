@@ -1,14 +1,13 @@
 // src/app/client-layout.tsx
 "use client";
 
-import { ReactNode, useEffect, useState, useRef } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
 import { Providers } from "./providers";
 import Header from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 
-// Modern background component with theme support
 const ThemedBackground = ({ children }: { children: ReactNode }) => {
   const { theme } = useTheme();
 
@@ -23,12 +22,8 @@ const ThemedBackground = ({ children }: { children: ReactNode }) => {
 
 export function ClientLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
-
-  const authStateRef = useRef(isAuthenticated);
 
   useEffect(() => {
     setMounted(true);

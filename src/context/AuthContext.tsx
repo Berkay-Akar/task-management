@@ -78,10 +78,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return { success: false, message: "Kullanıcı bulunamadı" };
     }
 
-    // Save to localStorage first
     saveCurrentUser(user);
 
-    // Then update state
     setAuthState({
       user,
       isAuthenticated: true,
@@ -114,11 +112,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const updatedUsers = [...users, newUser];
 
-    // Save to localStorage first
     saveUsers(updatedUsers);
     saveCurrentUser(newUser);
 
-    // Then update state
     setAuthState({
       user: newUser,
       isAuthenticated: true,
@@ -128,11 +124,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = async () => {
+    saveCurrentUser(null);
+
     setAuthState({
       user: null,
       isAuthenticated: false,
     });
-    saveCurrentUser(null);
+    await new Promise((resolve) => setTimeout(resolve, 50));
   };
 
   return (

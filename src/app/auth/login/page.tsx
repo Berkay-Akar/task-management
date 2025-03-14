@@ -52,10 +52,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleRegister = () => {
-    router.push("/auth/register");
-  };
-
   return (
     <div className="fixed inset-0 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -117,22 +113,23 @@ export default function LoginPage() {
                   <div className="w-full border-t border-[var(--surface-2)] dark:border-gray-600"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2  dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                  <span className="px-2 bg-[var(--surface-0)] dark:bg-gray-800 text-gray-500 dark:text-gray-400">
                     Hesabınız yok mu?
                   </span>
                 </div>
               </div>
 
               <div className="mt-4">
-                <Button
-                  type="button"
-                  onClick={handleRegister}
-                  isFullWidth
-                  variant="ghost"
-                  className="py-2.5 text-base font-medium border-2 border-[var(--primary)] dark:border-[var(--primary-hover)] text-[var(--primary)] dark:text-[var(--primary-light)] hover:bg-[var(--primary-subtle)] dark:hover:bg-[var(--primary-hover)]/20 rounded-lg transition-colors"
-                >
-                  Kayıt Ol
-                </Button>
+                <Link href="/auth/register" passHref>
+                  <Button
+                    type="button"
+                    isFullWidth
+                    variant="ghost"
+                    className="py-2.5 text-base font-medium border-2 border-[var(--primary)] dark:border-[var(--primary-hover)] text-[var(--primary)] dark:text-[var(--primary-light)] hover:bg-[var(--primary-subtle)] dark:hover:bg-[var(--primary-hover)]/20 rounded-lg transition-colors"
+                  >
+                    Kayıt Ol
+                  </Button>
+                </Link>
               </div>
             </div>
 

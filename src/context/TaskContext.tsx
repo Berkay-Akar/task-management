@@ -6,11 +6,10 @@ import React, {
   ReactNode,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Task, TasksState, User } from "../types";
+import { Task } from "../types";
 import {
   getTasks,
   saveTasks,
-  saveTask,
   getUsers,
   saveUsers,
   getCurrentUser,

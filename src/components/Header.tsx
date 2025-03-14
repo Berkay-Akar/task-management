@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import MoonIcon from "./icons/moonIcon";
 import SunIcon from "./icons/sunIcon";
 import Button from "./Button";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { FaUser } from "react-icons/fa";
 
 function useLocalStorage(key: string) {
@@ -48,7 +48,6 @@ const Header: React.FC<HeaderProps> = ({ userName, className = "" }) => {
   const { theme, toggleTheme } = useTheme();
   const { user, isAuthenticated, logout } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
   const [isAuth, setIsAuth] = useState(false);
   const currentUserJson = useLocalStorage("tasks-management-current-user");
 

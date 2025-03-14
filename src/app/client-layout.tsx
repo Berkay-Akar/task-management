@@ -1,16 +1,12 @@
 // src/app/client-layout.tsx
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
-import { ThemeProvider, useTheme } from "@/components/ThemeProvider";
+import { ReactNode } from "react";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { Providers } from "./providers";
 import Header from "@/components/Header";
-import { useAuth } from "@/context/AuthContext";
-import { usePathname } from "next/navigation";
 
 const ThemedBackground = ({ children }: { children: ReactNode }) => {
-  const { theme } = useTheme();
-
   return (
     <div className="bg-theme-gradient bg-theme-pattern min-h-screen h-screen flex flex-col overflow-hidden">
       <div className="relative z-10 flex flex-col flex-grow h-full overflow-hidden">
@@ -21,14 +17,6 @@ const ThemedBackground = ({ children }: { children: ReactNode }) => {
 };
 
 export function ClientLayout({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useAuth();
-  const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   return (
     <ThemeProvider>
       <ThemedBackground>

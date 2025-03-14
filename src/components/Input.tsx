@@ -9,7 +9,6 @@ interface BaseInputProps
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   variant?: "default" | "filled" | "outline";
-  fullWidth?: boolean;
 }
 
 interface TextInputProps extends BaseInputProps {
@@ -60,7 +59,6 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
       rightIcon,
       variant = "default",
       type = "text",
-      fullWidth,
       ...props
     },
     ref

@@ -7,16 +7,14 @@ import { useAuth } from "@/context/AuthContext";
 import Input from "../../../components/Input";
 import Button from "../../../components/Button";
 import { initializeUsers } from "../../../utils/localStorage";
-import { FaUser, FaLock, FaExclamationCircle } from "react-icons/fa";
-import { useTheme } from "../../../components/ThemeProvider";
+import { FaUser, FaExclamationCircle } from "react-icons/fa";
 
 export default function LoginPage() {
   const [tcKimlikNo, setTcKimlikNo] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { login, isAuthenticated } = useAuth();
-  const { theme } = useTheme();
+  const { login } = useAuth();
 
   useEffect(() => {
     initializeUsers();

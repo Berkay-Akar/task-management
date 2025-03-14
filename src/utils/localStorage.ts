@@ -18,7 +18,7 @@ export const getTasks = (): Task[] => {
         saveTasks(oldTasks);
         // Remove old data
         localStorage.removeItem("tasks");
-        return oldTasks.map((task: any) => ({
+        return oldTasks.map((task: Task) => ({
           ...task,
           createdAt: new Date(task.createdAt),
           updatedAt: new Date(task.updatedAt),
@@ -34,7 +34,7 @@ export const getTasks = (): Task[] => {
   try {
     const tasks = JSON.parse(tasksJson);
     return Array.isArray(tasks)
-      ? tasks.map((task: any) => ({
+      ? tasks.map((task: Task) => ({
           ...task,
           createdAt: new Date(task.createdAt),
           updatedAt: new Date(task.updatedAt),

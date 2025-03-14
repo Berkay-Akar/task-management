@@ -12,7 +12,6 @@ import {
   FaExclamationCircle,
   FaArrowLeft,
 } from "react-icons/fa";
-import { useTheme } from "../../../components/ThemeProvider";
 import { getCurrentUser } from "../../../utils/localStorage";
 
 export default function RegisterPage() {
@@ -22,7 +21,6 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { register } = useAuth();
-  const { theme } = useTheme();
 
   useEffect(() => {
     const user = getCurrentUser();

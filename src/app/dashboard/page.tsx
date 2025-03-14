@@ -75,10 +75,10 @@ export default function Dashboard() {
                     filter === "all"
                       ? "ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800"
                       : "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                  } text-xs sm:text-sm py-1 px-2 sm:py-1.5 sm:px-3`}
+                  } text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-4 min-w-[90px] md:min-w-[110px] whitespace-nowrap`}
                 >
-                  <span className="hidden xs:inline">Varsayılan</span>
-                  <span className="xs:hidden">Var</span>
+                  <span className="hidden sm:inline">Varsayılan</span>
+                  <span className="sm:hidden">Var</span>
                 </Button>
                 <Button
                   variant={filter === "date" ? "primary" : "ghost"}
@@ -88,10 +88,10 @@ export default function Dashboard() {
                     filter === "date"
                       ? "ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800"
                       : "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                  } text-xs sm:text-sm py-1 px-2 sm:py-1.5 sm:px-3`}
+                  } text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-4 min-w-[90px] md:min-w-[110px] whitespace-nowrap`}
                 >
-                  <span className="hidden xs:inline">Tarih</span>
-                  <span className="xs:hidden">Tar</span>
+                  <span className="hidden sm:inline">Tarih</span>
+                  <span className="sm:hidden">Tar</span>
                 </Button>
                 <Button
                   variant={filter === "priority" ? "primary" : "ghost"}
@@ -112,10 +112,10 @@ export default function Dashboard() {
                     filter === "priority"
                       ? "ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-800"
                       : "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                  } text-xs sm:text-sm py-1 px-2 sm:py-1.5 sm:px-3`}
+                  } text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-4 min-w-[90px] md:min-w-[110px] whitespace-nowrap`}
                 >
-                  <span className="hidden xs:inline">Öncelik</span>
-                  <span className="xs:hidden">Önc</span>
+                  <span className="hidden sm:inline">Öncelik</span>
+                  <span className="sm:hidden">Önc</span>
                 </Button>
               </div>
             </div>

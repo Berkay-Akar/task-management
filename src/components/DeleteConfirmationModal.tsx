@@ -47,7 +47,7 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
         </div>
 
         <div className="p-6">
-          <p className="text-gray-700 dark:text-gray-300 mb-6">
+          <p className="dahboard-heading">
             <span className="font-medium">{itemName}</span> görevini silmek
             istediğinizden emin misiniz? Bu işlem geri alınamaz.
           </p>

@@ -625,7 +625,6 @@ div[class*="sticky"][class*="bg-white"][class*="dark:bg-gray-800"] {
 
 /* Dashboard page specific styles */
 .dashboard-page {
-  background-color: var(--dashboard-bg);
 }
 
 /* Dashboard container panel styling */
